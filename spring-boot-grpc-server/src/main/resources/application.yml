@@ -1,0 +1,5 @@
+grpc:
+  port : 6565
+logging:
+  level:
+    org.exampledriven: DEBUG
