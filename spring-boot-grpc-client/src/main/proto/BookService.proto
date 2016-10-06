@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+package org.exampledriven.grpc.services;
+
+enum BookType {
+    BOOK = 0;
+    NEWS_PAPER = 1;
+    COMIC_BOOK = 2;
+}
+
+message Book {
+    string ISBN = 1;
+    string title = 2;
+    string author = 3;
+    int32 page = 4;
+    repeated string keyword = 5;
+    BookType bookType = 6;
+}
+
+message BookList {
+    repeated Book book = 1;
+}
+
+//message ISBN {
+//    string code = 1;
+//}
+
+service BookService {
+    rpc createBooks(BookList) returns (BookList);
+//    rpc findBookByISBN(ISBN) returns (Book);
+}
