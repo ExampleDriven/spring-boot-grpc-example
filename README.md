@@ -17,7 +17,7 @@ REST client test verbose output | http://localhost:8080/test_rest
 
 ## Useful resources
 
-https://www.youtube.com/watch?v=xpmFhTMqWhc
-http://www.ustream.tv/recorded/86187859
-https://github.com/LogNet/grpc-spring-boot-starter
-http://www.grpc.io/docs/
+- https://www.youtube.com/watch?v=xpmFhTMqWhc
+- http://www.ustream.tv/recorded/86187859
+- https://github.com/LogNet/grpc-spring-boot-starter
+- http://www.grpc.io/docs/

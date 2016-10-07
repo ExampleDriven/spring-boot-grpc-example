@@ -2,6 +2,6 @@ server:
   port: 8081
 grpc:
   port : 6565
-#logging:
-#  level:
-#    org.exampledriven: DEBUG
+logging:
+  level:
+    org.exampledriven: DEBUG
