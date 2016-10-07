@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.org/ExampleDriven/spring-boot-grcp-example.svg?branch=master)](https://travis-ci.org/ExampleDriven/spring-boot-grcp-example)
 
+Example project to for spring-boot integration wiht gRcp. Additonal to a gRcp client and server it has a traditional Spring MVC rest client using very similar payload. The performance of the two technologies can be compared, JMeter file is included.
+
 ## Test URLs
 
 Description | URL 
@@ -9,10 +11,10 @@ GRPC client test verbose output | http://localhost:8080/test_grpc
 REST client test compact output | http://localhost:8080/test_rest/compact
 REST client test verbose output | http://localhost:8080/test_rest
  
-## How to do performance test 
+## How to measure performance  
  - The jmeter directory contains the jmeter test definition
  - use the compact endpoints
- - turn off logging by disabling the appropriate lines application.yaml both for the server and the client 
+ - To eliminate "noise" turn off logging by commenting out the appropriate lines in application.yaml both for the server and the client 
  
 
 ## Useful resources
