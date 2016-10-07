@@ -1,4 +1,4 @@
-package org.exampledriven;
+package org.exampledriven.grpc;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.util.JsonFormat;
@@ -24,7 +24,7 @@ public class BookGrpcController {
 
         if (compact) {
 
-            return new ResponseEntity<String>("SUCCESS", HttpStatus.OK);
+            return new ResponseEntity<>("SUCCESS", HttpStatus.OK);
         } else {
 
             String jsonString = "";
@@ -34,7 +34,7 @@ public class BookGrpcController {
                 e.printStackTrace();
             }
 
-            return new ResponseEntity<String>(jsonString, HttpStatus.OK);
+            return new ResponseEntity<>(jsonString, HttpStatus.OK);
         }
     }
 }

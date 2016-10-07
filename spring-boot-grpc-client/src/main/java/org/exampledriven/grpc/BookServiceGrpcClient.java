@@ -1,4 +1,4 @@
-package org.exampledriven;
+package org.exampledriven.grpc;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
