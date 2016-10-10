@@ -8,8 +8,12 @@ import org.exampledriven.grpc.services.BookList;
 import org.exampledriven.grpc.services.BookServiceGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
@@ -17,13 +21,12 @@ public class BookServiceGrpcClient {
 
     private Logger logger = LoggerFactory.getLogger(BookServiceGrpcClient.class);
 
-    public BookList createBooks(List<Book> bookList) {
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 6565)
-                .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
-                .usePlaintext(true)
-                .build();
+    @Autowired
+    private LoadBalancerClient loadBalancerClient;
 
-        BookServiceGrpc.BookServiceBlockingStub bookServiceBlockingStub = BookServiceGrpc.newBlockingStub(channel);
+    private BookServiceGrpc.BookServiceBlockingStub bookServiceBlockingStub;
+
+    public BookList createBooks(List<Book> bookList) {
 
         BookList.Builder builder = BookList.newBuilder();
         bookList.forEach(builder::addBook);
@@ -35,6 +38,20 @@ public class BookServiceGrpcClient {
 
         return response;
 
+    }
+
+    @PostConstruct
+    private void initializeClient() {
+        ServiceInstance serviceInstance = loadBalancerClient.choose("grpc-server");
+        String host = serviceInstance.getHost();
+
+        ManagedChannel channel = ManagedChannelBuilder.forAddress(host, 6565)
+//                .nameResolverFactory()
+                .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
+                .usePlaintext(true)
+                .build();
+
+        bookServiceBlockingStub = BookServiceGrpc.newBlockingStub(channel);
     }
 
 }

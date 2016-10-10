@@ -3,7 +3,7 @@ package org.exampledriven.rest;
 import java.util.List;
 
 public class Book {
-    public enum BookType {COMIC_BOOK};
+    public enum BookType {COMIC_BOOK, NEWS_PAPER, BOOK};
 
     private String ISBN;
     private String author;
