@@ -1,10 +1,17 @@
 package org.exampledriven.grpc.eureka;
 
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.EurekaInstanceConfig;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.appinfo.MyDataCenterInstanceConfig;
+import com.netflix.appinfo.providers.EurekaConfigBasedInstanceInfoProvider;
+import com.netflix.discovery.DiscoveryClient;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.EurekaClientConfig;
+import com.netflix.discovery.shared.Application;
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
 import io.grpc.ResolvedServerInfo;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import java.net.InetSocketAddress;
 import java.net.URI;
@@ -14,45 +21,53 @@ import java.util.stream.Collectors;
 
 public class EurekaNameResolver extends NameResolver {
 
-    private final DiscoveryClient discoveryClient;
     private final String serviceName;
     private final String portMetaData;
+    private final EurekaClient eurekaClient;
 
-    //TODO use this instead of spring specific discoveryClient
-    private URI eurekaURI;
-
-    public EurekaNameResolver(URI eurekaURI, DiscoveryClient discoveryClient, String serviceName, String portMetaData) {
-        this.eurekaURI = eurekaURI;
-        this.discoveryClient = discoveryClient;
-        this.serviceName = serviceName;
+    public EurekaNameResolver(EurekaClientConfig clientConfig, URI targetUri, String portMetaData) {
         this.portMetaData = portMetaData;
+        serviceName = targetUri.getAuthority();
+
+        MyDataCenterInstanceConfig instanceConfig = new MyDataCenterInstanceConfig();
+
+        ApplicationInfoManager applicationInfoManager = initializeApplicationInfoManager(instanceConfig);
+
+        eurekaClient = new DiscoveryClient(applicationInfoManager, clientConfig);
+    }
+
+    private static synchronized ApplicationInfoManager initializeApplicationInfoManager(EurekaInstanceConfig instanceConfig) {
+        InstanceInfo instanceInfo = new EurekaConfigBasedInstanceInfoProvider(instanceConfig).get();
+        return new ApplicationInfoManager(instanceConfig, instanceInfo);
     }
 
     @Override
     public String getServiceAuthority() {
-        return eurekaURI.getAuthority();
+        return serviceName;
     }
 
     @Override
     public void start(Listener listener) {
 
-        List<ServiceInstance> instances = discoveryClient.getInstances(serviceName);
+        update(listener);
 
-        List<ResolvedServerInfo> collect = instances.stream().map(
-            serviceInstance -> {
-                int port;
-                if (portMetaData != null) {
-                    String s = serviceInstance.getMetadata().get(portMetaData);
-                    port = Integer.parseInt(serviceInstance.getMetadata().get(portMetaData));
-                } else {
-                    port = serviceInstance.getPort();
-                }
-                return new ResolvedServerInfo(new InetSocketAddress(serviceInstance.getHost(), port), Attributes.EMPTY);
+    }
+
+    private void update(Listener listener) {
+        Application application = eurekaClient.getApplication(serviceName);
+
+        List<ResolvedServerInfo> resolvedServerInfos = application.getInstances().stream().map(instanceInfo -> {
+            int port;
+            if (portMetaData != null) {
+                String s = instanceInfo.getMetadata().get(portMetaData);
+                port = Integer.parseInt(instanceInfo.getMetadata().get(portMetaData));
+            } else {
+                port = instanceInfo.getPort();
             }
-        ).collect(Collectors.toList());
+            return new ResolvedServerInfo(new InetSocketAddress(instanceInfo.getHostName(), port), Attributes.EMPTY);
+        }).collect(Collectors.toList());
 
-        listener.onUpdate(Collections.singletonList(collect), Attributes.EMPTY);
-
+        listener.onUpdate(Collections.singletonList(resolvedServerInfos), Attributes.EMPTY);
     }
 
     @Override
