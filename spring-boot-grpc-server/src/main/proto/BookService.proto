@@ -20,6 +20,7 @@ message Book {
 
 message BookList {
     repeated Book book = 1;
+    string serverIdentifier = 2;
 }
 
 //message ISBN {

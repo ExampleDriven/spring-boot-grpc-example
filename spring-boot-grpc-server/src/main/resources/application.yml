@@ -12,7 +12,7 @@ eureka:
     leaseRenewalIntervalInSeconds: 1
     leaseExpirationDurationInSeconds: 2
     metadataMap:
-      grpc.port: 7565
+      grpc.port: ${grpc.port}
   client:
     serviceUrl:
       defaultZone: http://127.0.0.1:8761/eureka/

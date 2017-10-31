@@ -1,0 +1,4 @@
+server:
+  port: 9082
+grpc:
+  port : 7566
