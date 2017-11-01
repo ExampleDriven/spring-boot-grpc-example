@@ -2,9 +2,6 @@ package org.exampledriven.grpc;
 
 import com.netflix.discovery.EurekaClientConfig;
 import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.util.RoundRobinLoadBalancerFactory;
-import org.exampledriven.grpc.eureka.EurekaNameResolverProvider;
 import org.exampledriven.grpc.services.Book;
 import org.exampledriven.grpc.services.BookList;
 import org.exampledriven.grpc.services.BookServiceGrpc;
@@ -21,6 +18,9 @@ public class BookServiceGrpcClient {
 
     @Autowired
     EurekaClientConfig eurekaClientConfig;
+
+    @Autowired
+    ManagedChannel managedChannel;
 
     private Logger logger = LoggerFactory.getLogger(BookServiceGrpcClient.class);
 
@@ -46,14 +46,8 @@ public class BookServiceGrpcClient {
     @PostConstruct
     private void initializeClient() {
 
-        ManagedChannel channel = ManagedChannelBuilder
-            .forTarget("eureka://grpc-server")
-            .nameResolverFactory(new EurekaNameResolverProvider(eurekaClientConfig, "grpc.port"))
-            .loadBalancerFactory(RoundRobinLoadBalancerFactory.getInstance())
-            .usePlaintext(true)
-            .build();
+        bookServiceBlockingStub = BookServiceGrpc.newBlockingStub(managedChannel);
 
-        bookServiceBlockingStub = BookServiceGrpc.newBlockingStub(channel);
     }
 
 }

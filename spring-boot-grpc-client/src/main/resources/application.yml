@@ -20,3 +20,7 @@ eureka:
 spring:
   application:
     name: grpc-client
+
+grpc:
+  eureka:
+    service-id: grpc-server
